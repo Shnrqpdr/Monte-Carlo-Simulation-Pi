@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <mpi.h>
 #include <stdlib.h>
+#include <math.h>
+#include <time.h>
 
 #define M_PI 3.141592653589793238462643
 
@@ -8,6 +10,10 @@
 
 void main(int argc, char **argv)
 {
+
+	struct timespec begin, endTime;
+	double realTime, realTimeNano, realTimeSec;
+	clock_gettime(CLOCK_REALTIME, &begin);
 
 	MPI_Init(&argc, &argv);
 
@@ -49,7 +55,15 @@ void main(int argc, char **argv)
 	{
 		pi = 4 * total_sum / total_div;
 		printf("\n Resultado: %.32f\n", pi);
-		printf("\n Acurácia: %.32f\n", ((M_PI - pi) / M_PI) * 100.0);
+		printf("\n Erro em porcentagem: %.8f \n", fabs(((M_PI - pi) / M_PI) * 100.0));
+
+		clock_gettime(CLOCK_REALTIME, &endTime);
+
+		realTimeSec = endTime.tv_sec - begin.tv_sec;
+		realTimeNano = endTime.tv_nsec - begin.tv_nsec;
+		realTime = realTimeSec + realTimeNano * 1e-9;
+
+		printf("\nTempo de execução: %lf\n", realTime);
 	}
 
 	MPI_Finalize();
